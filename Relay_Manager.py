@@ -16,6 +16,21 @@ def handle_exit():
     clean_up()
     running = False
 
+def format_uptime(seconds: float)-> str:
+    seconds = int(seconds)
+    days, seconds = divmod(seconds, 86400)
+    hours, seconds = divmod(seconds, 3600)
+    minutes, seconds = divmod(seconds, 60)
+    if days > 0:
+        return f"{days}d {hours}h {minutes}m"
+    if hours > 0:
+        return f"{hours}h {minutes}m"
+    if minutes > 0:
+        return f"{minutes}m {seconds}s"
+    return f"{seconds}s"
+
+
+
 def systemctl_info(service, *properties):
     cmd = ["systemctl", "show", service, "--no-page","--property=" + ",".join(properties)]
     try:
@@ -38,20 +53,21 @@ def service_status(service):
     sub = data.get("SubState", "Unknown")
     pid = data.get("ExecMainPID", "0")
     print(data.get("MemoryCurrent", "0"))
-    mem = int(data.get("MemoryCurrent", "0")) // (1024*1024)
-    cpu_ns = int(data.get("CPUUsageNSec", "0"))
-    timestamp = int(data.get("ActiveEnterTimestampMonotonic"), "0")
+    mem = int(data.get("MemoryCurrent", 0)) // (1024*1024)
+    cpu_ns = int(data.get("CPUUsageNSec", 0))
+    timestamp = int(data.get("ActiveEnterTimestampMonotonic"), 0)
     return {
         "active" : active,
         "sub" : sub,
         "pid" : pid,
         "mem_mb" : mem,
-        "cpu_sec" : cpu_ns / 1e9
+        "cpu_sec" : cpu_ns / 1e9,
+        "ts" : timestamp
     }
 
 def cpu_usage(pid):
     out = subprocess.check_output(["ps", "-p", str(pid), "-o", "%cpu"])
-    return float(out)
+    return float(out.split()[1])
 
 def format_status(ok, text):
     if ok:
@@ -69,6 +85,8 @@ def fetch_status(service):
         pid = data["pid"] if data["pid"] != "0" else "Inactive"
         mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
         cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
+        ts = data["ts"]
+        uptime_s = ((time.monotonic_ns()/1_000) - ts) / 1_000_000
         if pid:
             cpu_use = cpu_usage(pid)
         else:
@@ -76,7 +94,7 @@ def fetch_status(service):
         print(clear_screen, end="")
         print(show_status(service,
             format_status(ok_1, status), format_status(ok_2, substate),
-            pid, cpu_sec, mem, cpu_use), flush=True)
+            pid, cpu_sec, mem, cpu_use, format_uptime(uptime_s)), flush=True)
         time.sleep(1.5)
     clean_up()
 
