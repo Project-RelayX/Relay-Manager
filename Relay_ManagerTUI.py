@@ -55,7 +55,7 @@ def pad(val, width, char=" "):
 def show_status(service: str, status: str, substate: str, pid: int, cpu_sec: float,mem_usage: float, cpu_usage: float, ts : str):
     box_side = f"{dim}{sides}{reset}"
     return (fr"""
-    {dim}{BTL}{LN*2} {service} Status {LN*38}{BTR}{reset}
+    {dim}{BTL}{LN*2} {pad((service + " Status "), 14, char=LN)}{LN*35}{BTR}{reset}
     {box_side}                                                    {box_side}
     {box_side}{cyan}   {bold}Status{reset}      :      {green}{pad(status, 39)}{reset}{box_side}
     {box_side}{cyan}   {bold}State{reset}       :      {pad(substate, 39)}{box_side}
@@ -63,7 +63,7 @@ def show_status(service: str, status: str, substate: str, pid: int, cpu_sec: flo
     {box_side}{cyan}   {bold}CPU Time{reset}    :      {pad((f"{cpu_sec}s" if cpu_sec else "Inactive"), 30)}{box_side}
     {box_side}{cyan}   {bold}Memory{reset}      :      {cyan}{pad((f"Using {mem_usage} MB of RAM." if mem_usage != 0 else "Inactive"), 30)}{reset}{box_side}
     {box_side}{cyan}   {bold}CPU{reset}         :      {cyan}{pad((f"Using {cpu_usage}% of CPU."), 30) if cpu_usage != "Not Running." else {pad("Inactive", 30)}}{reset}{box_side}
-    {box_side}{cyan}   {bold}Uptime{reset}      :      {cyan}{pad(f"Started {ts}s ago.", 30) if ts != 0 else {pad("Not Running.", 30)}}{reset}{box_side}
+    {box_side}{cyan}   {bold}Uptime{reset}      :      {cyan}{pad(f"Started {ts} ago.", 30) if ts != 0 else {pad("Not Running.", 30)}}{reset}{box_side}
     {box_side}                                                    {box_side}
     {dim}{BDL}{LN*52}{BDR}{reset}
     """)
@@ -96,5 +96,3 @@ def show_args(command_name):
     {side}                                    {side}
     {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
     """)
-
-print(show_status("tor", "Active", "running", 810, 5.987762, 98, 0.1, 900))

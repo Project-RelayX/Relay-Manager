@@ -85,10 +85,10 @@ def fetch_status(service):
         mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
         cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
         ts = data["ts"]
-        ts_dt = datetime.strptime(str, "%a %Y-%m-%d $H:%M:%S %Z")
+        ts_dt = datetime.strptime(str, "%a %Y-%m-%d %H:%M:%S %Z")
         ts_dt = ts_dt.replace(tzinfo=timezone.utc)
         now = datetime.now(timezone.utc)
-        uptime = now - ts_dt
+        uptime = int((now - ts_dt).total_seconds())
         if pid:
             cpu_use = cpu_usage(pid)
         else:
