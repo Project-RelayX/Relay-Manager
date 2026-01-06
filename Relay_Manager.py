@@ -5,7 +5,7 @@ from Relay_ManagerTUI import show_status, show_args
 clear_screen = "\033[2J\033[H"
 hide_cursor = "\033[?25l"
 show_cursor = "\033[?25h"
-reset = "\033[36m", "\033[0m"
+reset = "\033[0m"
 green, red, yellow, dim = "\033[32m", "\033[31m", "\033[33m", "\033[2m"
 
 running = True
@@ -17,7 +17,7 @@ def handle_exit():
     running = False
 
 def systemctl_info(service, *properties):
-    cmd = ["systemctl", "show", service, "--no-page",f"--property={(prop for prop in properties)}"]
+    cmd = ["systemctl", "show", service, "--no-page","--property=" + ",".join(properties)]
     try:
         out = subprocess.check_output(cmd, text=True)
     except subprocess.CalledProcessError:
@@ -31,8 +31,8 @@ def systemctl_info(service, *properties):
 
 def service_status(service):
     data = systemctl_info(
-        service, "ActiveState", "Substate", "ExecMainPID", 
-        "MemoryCurrent", "CPUUsageNSec", "ActiveTimestampMonotonic"
+        service, "ActiveState", "SubState", "ExecMainPID", 
+        "MemoryCurrent", "CPUUsageNSec", "ActiveEnterTimestampMonotonic"
     )
     active = data.get("ActiveState") == "active"
     sub = data.get("SubState", "Unknown")
@@ -40,6 +40,7 @@ def service_status(service):
     print(data.get("MemoryCurrent", "0"))
     mem = int(data.get("MemoryCurrent", "0")) // (1024*1024)
     cpu_ns = int(data.get("CPUUsageNSec", "0"))
+    timestamp = int(data.get("ActiveEnterTimestampMonotonic"), "0")
     return {
         "active" : active,
         "sub" : sub,
@@ -68,7 +69,7 @@ def fetch_status(service):
         pid = data["pid"] if data["pid"] != "0" else "Inactive"
         mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
         cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
-        if isinstance(pid, int):
+        if pid:
             cpu_use = cpu_usage(pid)
         else:
             cpu_use = "Not running."

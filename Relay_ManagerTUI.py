@@ -51,19 +51,20 @@ def intro_screen():
 
 def pad(val, width, char=" "):
     return str(val).ljust(width, char)
-def show_status(service: str, status: str, substate: str, pid: int, cpu_sec: int,mem_usage: int, cpu_usage: int):
+
+def show_status(service: str, status: str, substate: str, pid: int, cpu_sec: float,mem_usage: float, cpu_usage: float, ts):
     box_side = f"{dim}{sides}{reset}"
     return (fr"""
-    {dim}{BTL}{LN*2} {service} Status {LN*28}{BTR}{reset}
-    {box_side}                                             {box_side}
-    {box_side}{cyan}   {bold}Status{reset}      :      {green}{pad(status, 23)}{reset}{box_side}
-    {box_side}{cyan}   {bold}State{reset}       :      {pad(substate, 23)}{box_side}
-    {box_side}{cyan}   {bold}PID{reset}         :      {pad((pid if pid != "0" else "Inactive"), 23)}{box_side}
-    {box_side}{cyan}   {bold}Started{reset}     :      {pad((f"Started {cpu_sec}s ago." if cpu_sec else "Inactive"), 23)}{box_side}
-    {box_side}{cyan}   {bold}Memory{reset}      :      {cyan}{pad((f"Using {mem_usage} MB of RAM." if mem_usage != 0 else "Inactive"), 23)}{reset}{box_side}
-    {box_side}{cyan}   {bold}CPU{reset}         :      {cyan}{pad((f"Using {cpu_usage}% of CPU."), 23)}{reset}{box_side}
-    {box_side}                                             {box_side}
-    {dim}{BDL}{LN*45}{BDR}{reset}
+    {dim}{BTL}{LN*2} {service} Status {LN*38}{BTR}{reset}
+    {box_side}                                                    {box_side}
+    {box_side}{cyan}   {bold}Status{reset}      :      {green}{pad(status, 30)}{reset}{box_side}
+    {box_side}{cyan}   {bold}State{reset}       :      {pad(substate, 30)}{box_side}
+    {box_side}{cyan}   {bold}PID{reset}         :      {pad((pid if pid != "0" else "Inactive"), 30)}{box_side}
+    {box_side}{cyan}   {bold}CPU Time{reset}    :      {pad((f"Started {cpu_sec}s ago." if cpu_sec else "Inactive"), 30)}{box_side}
+    {box_side}{cyan}   {bold}Memory{reset}      :      {cyan}{pad((f"Using {mem_usage} MB of RAM." if mem_usage != 0 else "Inactive"), 30)}{reset}{box_side}
+    {box_side}{cyan}   {bold}CPU{reset}         :      {cyan}{pad((f"Using {cpu_usage}% of CPU."), 30) if cpu_usage != "Not Running." else {pad("Inactive", 30)}}{reset}{box_side}
+    {box_side}         {bold}Timestamp{reset}   :      {cyan}{pad(f"Started {ts}s ago.") if ts != "0" else {pad("Not Running."), 30}}                                        {box_side}
+    {dim}{BDL}{LN*52}{BDR}{reset}
     """)
 
 def show_options():
@@ -94,3 +95,5 @@ def show_args(command_name):
     {side}                                    {side}
     {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
     """)
+
+print(show_status("tor", "Active", "running", 810, 5.983977, 98, 0.1))
