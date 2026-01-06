@@ -17,7 +17,7 @@ def handle_exit():
     running = False
 
 def systemctl_info(service, *properties):
-    cmd = ["systemctl" "show", service, "--no-page", "--property=" ",".join(properties)]
+    cmd = ["systemctl", "show", service, "--no-page",f"--property={(prop for prop in properties)}"]
     try:
         out = subprocess.check_output(cmd, text=True)
     except subprocess.CalledProcessError:
@@ -37,6 +37,7 @@ def service_status(service):
     active = data.get("ActiveState") == "active"
     sub = data.get("SubState", "Unknown")
     pid = data.get("ExecMainPID", "0")
+    print(data.get("MemoryCurrent", "0"))
     mem = int(data.get("MemoryCurrent", "0")) // (1024*1024)
     cpu_ns = int(data.get("CPUUsageNSec", "0"))
     return {
@@ -54,6 +55,7 @@ def cpu_usage(pid):
 def format_status(ok, text):
     if ok:
         return green + text + reset
+    print(text)
     return red + text + reset
 
 
@@ -63,7 +65,7 @@ def fetch_status(service):
         data = service_status(service)
         ok_1, status = data["active"], "Active" if data["active"] else "Inactive"
         substate, ok_2 = data["sub"], True if data["sub"] != "Unknown" else False
-        pid = data["pid"] if pid != "0" else "Inactive"
+        pid = data["pid"] if data["pid"] != "0" else "Inactive"
         mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
         cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
         if isinstance(pid, int):

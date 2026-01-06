@@ -18,20 +18,36 @@ edge = f"━"*95
 BTL, BTR, BDL, BDR, LN = "┏", "┓", "┗", "┛", "━"    # Stands for Box Top left, top right, down left and down right
 upper, lower, sides = f"┏{edge}┓",f"┗{edge}┛", "┃"
 
+
+
+art = [
+    r"                                                                                               ",
+    r"      _____  __   __  _____      _               __  __                                        ",
+    r"     |  __ \ \ \ / / |  __ \    | |             |  \/  |                                       ",
+    r"     | |__) | \ V /  | |__) |___| | __ _ _   _  | \  / | __ _ _ __   __ _  __ _  ___ _ __      ",
+    r"     |  _  /   > <   |  _  // _ \ |/ _` | | | | | |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|     ",
+    r"     | | \ \  / Λ \  | | \ \  __/ | (_| | |_| | | |  | | (_| | | | | (_| | (_| |  __/ |        ",
+    r"     |_|  \_\/_/ \_\ |_|  \_\___|_|\__,_|\__, | |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|        ",
+    r"                                          __/ |                            __/ |               ",
+    r"                                         |___/                            |___/                ",
+    r"                                                                                               ",
+    r"               Routing encrypted messages over a De-centralized Relay overlay.                "
+]
+
+
+
+
+def pad_line_art(line, width):
+    return line + " "*(width - len(line))
+
+def ascii_boxed_art(ascii_lines, boxwidth=95):
+    print(dim+upper+reset)
+    for line in ascii_lines:
+        print(f"{dim}{sides}{reset}{cyan}{pad_line_art(line, boxwidth)}{reset}{dim}{sides}{reset}")
+    print(dim+lower+reset)
+
 def intro_screen():
-    print(fr"""
-    {upper}
-    {sides}{cyan}      _____  __   __  _____      _               __  __                                        {reset}{sides}
-    {sides}{cyan}     |  __ \ \ \ / / |  __ \    | |             |  \/  |                                       {reset}{sides}
-    {sides}{cyan}     | |__) | \ V /  | |__) |___| | __ _ _   _  | \  / | __ _ _ __   __ _  __ _  ___ _ __      {reset}{sides}
-    {sides}{cyan}     |  _  /   > <   |  _  // _ \ |/ _` | | | | | |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|     {reset}{sides}
-    {sides}{cyan}     | | \ \  / Λ \  | | \ \  __/ | (_| | |_| | | |  | | (_| | | | | (_| | (_| |  __/ |        {reset}{sides}
-    {sides}{cyan}     |_|  \_\/_/ \_\ |_|  \_\___|_|\__,_|\__, | |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|        {reset}{sides}
-    {sides}{cyan}                                          __/ |                            __/ |               {reset}{sides}
-    {sides}{cyan}                                         |___/                            |___/                {reset}{sides}
-    {sides}                                                                                               {sides}
-    {sides}{bold}{"\t"*2}     Routing encrypted messages over a De-centralized Relay overlay.{reset}{"\t"*2}    {sides}
-    {lower}""")
+    ascii_boxed_art(art)
 
 def pad(val, width, char=" "):
     return str(val).ljust(width, char)
