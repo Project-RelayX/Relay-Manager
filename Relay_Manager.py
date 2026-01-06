@@ -1,4 +1,5 @@
 import subprocess, time
+from datetime import datetime, timezone
 
 from Relay_ManagerTUI import show_status, show_args
 
@@ -29,8 +30,6 @@ def format_uptime(seconds: float)-> str:
         return f"{minutes}m {seconds}s"
     return f"{seconds}s"
 
-
-
 def systemctl_info(service, *properties):
     cmd = ["systemctl", "show", service, "--no-page","--property=" + ",".join(properties)]
     try:
@@ -47,7 +46,7 @@ def systemctl_info(service, *properties):
 def service_status(service):
     data = systemctl_info(
         service, "ActiveState", "SubState", "ExecMainPID", 
-        "MemoryCurrent", "CPUUsageNSec", "ActiveEnterTimestampMonotonic"
+        "MemoryCurrent", "CPUUsageNSec", "ActiveEnterTimestamp"
     )
     active = data.get("ActiveState") == "active"
     sub = data.get("SubState", "Unknown")
@@ -55,7 +54,7 @@ def service_status(service):
     print(data.get("MemoryCurrent", "0"))
     mem = int(data.get("MemoryCurrent", 0)) // (1024*1024)
     cpu_ns = int(data.get("CPUUsageNSec", 0))
-    timestamp = int(data.get("ActiveEnterTimestampMonotonic"), 0)
+    timestamp = data.get("ActiveEnterTimestamp")
     return {
         "active" : active,
         "sub" : sub,
@@ -86,7 +85,10 @@ def fetch_status(service):
         mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
         cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
         ts = data["ts"]
-        uptime_s = ((time.monotonic_ns()/1_000) - ts) / 1_000_000
+        ts_dt = datetime.strptime(str, "%a %Y-%m-%d $H:%M:%S %Z")
+        ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+        now = datetime.now(timezone.utc)
+        uptime = now - ts_dt
         if pid:
             cpu_use = cpu_usage(pid)
         else:
@@ -94,7 +96,7 @@ def fetch_status(service):
         print(clear_screen, end="")
         print(show_status(service,
             format_status(ok_1, status), format_status(ok_2, substate),
-            pid, cpu_sec, mem, cpu_use, format_uptime(uptime_s)), flush=True)
+            pid, cpu_sec, mem, cpu_use, format_uptime(uptime)), flush=True)
         time.sleep(1.5)
     clean_up()
 
