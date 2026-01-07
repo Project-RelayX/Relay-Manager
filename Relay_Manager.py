@@ -11,7 +11,7 @@ green, red, yellow, dim = "\033[32m", "\033[31m", "\033[33m", "\033[2m"
 
 running = True
 def clean_up():
-    print(reset + show_cursor, end="", flush=True)
+    print(show_cursor + reset, end="", flush=True)
 def clear():
     print(clear_screen)
 def handle_exit():
@@ -52,8 +52,7 @@ def service_status(service):
     active = data.get("ActiveState") == "active"
     sub = data.get("SubState", "Unknown")
     pid = data.get("ExecMainPID", "0")
-    print(data.get("MemoryCurrent", "0"))
-    mem = int(data.get("MemoryCurrent", 0)) // (1024*1024)
+    mem = (data.get("MemoryCurrent") if data.get("MemoryCurrent") != "[not set]" else 0) // (1024*1024)
     cpu_ns = int(data.get("CPUUsageNSec", 0))
     timestamp = data.get("ActiveEnterTimestamp")
     return {
@@ -111,7 +110,7 @@ def parse_command(user_input: str, arg_commands: dict, single_line_commands: dic
         if len(user_input) == 1:
             if user_input[0][:2] in arg_commands:
                 show_args(user_input[0])
-                arg = input("Relay-Manager> ")
+                arg = input("Relay-Manager> ").lower()
                 if arg == "1" or arg == "2":
                     arg="tor" if arg=="1" else "relay"
                 return arg_commands[user_input[0][:2]](arg)

@@ -8,6 +8,7 @@ single_line_cmds = {}
 util_commands = {"help":show_help, "art":intro_screen, "commands":show_options, "clear":clear}
 
 def main():
+    clear()
     intro_screen()
     show_options() 
     while True:
