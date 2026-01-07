@@ -77,28 +77,32 @@ def format_status(ok, text):
 
 def fetch_status(service):
     print(hide_cursor, end="", flush=True)
-    while running:
-        data = service_status(service)
-        ok_1, status = data["active"], "Active" if data["active"] else "Inactive"
-        substate, ok_2 = data["sub"], True if data["sub"] != "Unknown" else False
-        pid = data["pid"] if data["pid"] != "0" else "Inactive"
-        mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
-        cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
-        ts = data["ts"]
-        ts_dt = datetime.strptime(ts, "%a %Y-%m-%d %H:%M:%S %Z")
-        ts_dt = ts_dt.replace(tzinfo=timezone.utc)
-        now = datetime.now(timezone.utc)
-        uptime = int((now - ts_dt).total_seconds())
-        if pid:
-            cpu_use = cpu_usage(pid)
-        else:
-            cpu_use = "Not running."
-        print(clear_screen, end="")
-        print(show_status(service,
-            format_status(ok_1, status), format_status(ok_2, substate),
-            pid, cpu_sec, mem, cpu_use, format_uptime(uptime)), flush=True)
-        time.sleep(1.5)
-    clean_up()
+    try:
+        while running:
+            data = service_status(service)
+            ok_1, status = data["active"], "Active" if data["active"] else "Inactive"
+            substate, ok_2 = data["sub"], True if data["sub"] != "Unknown" else False
+            pid = data["pid"] if data["pid"] != "0" else "Inactive"
+            mem = data["mem_mb"] if data["mem_mb"] != 0 else "Not running."
+            cpu_sec = data["cpu_sec"] if data["cpu_sec"] else "Not running."
+            ts = data["ts"]
+            ts_dt = datetime.strptime(ts, "%a %Y-%m-%d %H:%M:%S %Z")
+            ts_dt = ts_dt.replace(tzinfo=timezone.utc)
+            now = datetime.now(timezone.utc)
+            uptime = int((now - ts_dt).total_seconds())
+            if pid:
+                cpu_use = cpu_usage(pid)
+            else:
+                cpu_use = "Not running."
+            print(clear_screen, end="")
+            print(show_status(service,
+                format_status(ok_1, status), format_status(ok_2, substate),
+                pid, cpu_sec, mem, cpu_use, format_uptime(uptime)), flush=True)
+            time.sleep(1.5)
+        clean_up()
+    except KeyboardInterrupt:
+        handle_exit()
+        return
 
 def parse_command(user_input: str, arg_commands: dict, single_line_commands: dict):
     """user_input must be lowercase"""
