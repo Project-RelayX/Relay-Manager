@@ -197,6 +197,5 @@ def show_help():
     {side}                                                                                        {side}
     {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
        """
-    #os.environ["PAGER"] = "less -R"
-    #pydoc.pager(help_text)
-    print(help_text)
+    os.environ["PAGER"] = "less -R"
+    pydoc.pager(help_text)
