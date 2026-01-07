@@ -2,6 +2,7 @@
 The TUI part of Relay Manager. Please do not read the code.
 This is one of the most unreadable thing i've produced.
 """
+import pydoc, os
 
 # ANSI escape codes
 
@@ -96,3 +97,67 @@ def show_args(command_name):
     {side}                                    {side}
     {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
     """)
+
+def show_help():
+    help_text = """
+       ┏━━ Manager Commands - Help ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+       ┃                                                                                        ┃
+       ┃   Note: Commands accept abbreviatons or full names. Inputs are case insensitive.       ┃
+       ┃       Example: 'st' / 'status' for the 'status' command.                               ┃
+       ┃                                                                                        ┃
+       ┃   Utility commands ->                                                                  ┃
+       ┃   These commands have no abbreviations / shortcuts.                                    ┃
+       ┃                                                                                        ┃
+       ┃   1. help        :     Shows this screen                                               ┃
+       ┃   2. exit        :     Exit the manager. (Does not shutdown relay / tor)               ┃
+       ┃   3. art         :     Prints the splash ascii art.                                    ┃
+       ┃   4. clear       :     clears the terminal screen.                                     ┃
+       ┃   5. commands    :     Prints the available commands box.                              ┃
+       ┃                                                                                        ┃
+       ┃   Manager commands ->                                                                  ┃
+       ┃                                                                                        ┃
+       ┃    1. Status ---------------------------------------------------------------------     ┃
+       ┃                                                                                        ┃
+       ┃      Command     :   st (or) status                                                    ┃
+       ┃      Arguments   :   relay / tor                                                       ┃
+       ┃      Description :   Shows an updating dashboard of the chosen service (relay/tor).    ┃
+       ┃      Source      :   Data fetched from systemd systemctl.                              ┃
+       ┃      Example use :   st relay (or) status relay  /  st tor (or) status tor             ┃
+       ┃                                                                                        ┃
+       ┃    2. Repair ---------------------------------------------------------------------     ┃
+       ┃                                                                                        ┃
+       ┃      Command     :   rp (or) repair                                                    ┃
+       ┃      Arguments   :   No arguments.                                                     ┃
+       ┃      Description :   Repairs all the binaries and verifies the torrc.                  ┃
+       ┃      Source      :   Binaries from the Install server, torrc from manager binary       ┃
+       ┃      Example use :   rp / repair                                                       ┃
+       ┃                                                                                        ┃
+       ┃    3. Logs -----------------------------------------------------------------------     ┃
+       ┃                                                                                        ┃
+       ┃      Command     :   lg (or) logs                                                      ┃
+       ┃      Arguments   :   relay / tor                                                       ┃
+       ┃      Description :   Shows logs of the chosen service (tor/relay).                     ┃
+       ┃      Source      :   Tor logs - journalctl. Relay logs - File (~/relay_log.txt).       ┃
+       ┃      Example use :   lg relay (or) log relay / lg tor (or) log tor                     ┃
+       ┃                                                                                        ┃
+       ┃    4. Update ---------------------------------------------------------------------     ┃
+       ┃                                                                                        ┃
+       ┃      Command     :   up (or) update                                                    ┃
+       ┃      Arguments   :   relay / tor                                                       ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┃                                                                                        ┃
+       ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+       """
+    os.environ["PAGER"] = "less -R"
+    pydoc.pager(help_text)
+show_help()

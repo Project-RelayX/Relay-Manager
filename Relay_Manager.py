@@ -122,3 +122,5 @@ def parse_command(user_input: str, arg_commands: dict, single_line_commands: dic
             return arg_commands[user_input[0][:2]](" ".join(user_input[1:]))
     except KeyError:
         print(f"Invalid command '{user_input[0]}' with argument '{user_input[1]}'. Type 'help' for a list of commands.")
+    except Exception as e:
+        print(f"An Error occoured during parsing the following command: '{" ".join(user_input)}'.\n{e}")
