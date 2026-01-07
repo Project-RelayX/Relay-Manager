@@ -12,7 +12,8 @@ green, red, yellow, dim = "\033[32m", "\033[31m", "\033[33m", "\033[2m"
 running = True
 def clean_up():
     print(reset + show_cursor, end="", flush=True)
-
+def clear():
+    print(clear_screen)
 def handle_exit():
     clean_up()
     running = False
@@ -120,6 +121,8 @@ def parse_command(user_input: str, arg_commands: dict, single_line_commands: dic
                 print(f"Invalid command '{user_input[0]}'. Type 'help' for a list of commands. ")
         elif len(user_input) > 1:
             return arg_commands[user_input[0][:2]](" ".join(user_input[1:]))
+    except KeyboardInterrupt:
+        return
     except KeyError:
         print(f"Invalid command '{user_input[0]}' with argument '{user_input[1]}'. Type 'help' for a list of commands.")
     except Exception as e:
