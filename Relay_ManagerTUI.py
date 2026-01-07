@@ -11,13 +11,14 @@ gray = "\033[37m"
 dark_green, red, yellow, dim = "\033[32m", "\033[31m", "\033[33m", "\033[2m"
 bold = "\033[1m"
 green = "\033[92m"
-
+edge="━"*95
+upper, lower, sides = f"┏{edge}┓",f"┗{edge}┛", "┃"
 
 # Box setup
 
 edge = f"━"*95
 BTL, BTR, BDL, BDR, LN = "┏", "┓", "┗", "┛", "━"    # Stands for Box Top left, top right, down left and down right
-upper, lower, sides = f"┏{edge}┓",f"┗{edge}┛", "┃"
+
 
 
 
@@ -71,14 +72,13 @@ def show_status(service: str, status: str, substate: str, pid: int, cpu_sec: flo
 
 def show_options():
     side = f"{dim}┃{reset}"
-    
     print(f"""
     {dim}┏━━{bold}{cyan} Commands {reset}{dim}{LN*30}┓{reset}
     {side}                                          {side}
     {side}    {green}[st]{reset}{cyan} Status{reset}         {green}[sp]{reset}{cyan} Stop{reset}         {side}
     {side}    {green}[rp]{reset}{cyan} Repair{reset}         {green}[sd]{reset}{cyan} Shutdown{reset}     {side}
     {side}    {green}[lg]{reset}{cyan} Logs{reset}           {green}[re]{reset}{cyan} Restart{reset}      {side}
-    {side}    {green}[up]{reset}{cyan} Update{reset}         {green}[rm]{reset}{cyan} Uninstall{reset}    {side}
+    {side}    {green}[up]{reset}{cyan} Update{reset}         {green}[un]{reset}{cyan} Uninstall{reset}    {side}
     {side}                                          {side}
     {side}{" "*14}{dim}{bold}{cyan}-- Utility --{reset}{" "*15}{side}
     {side}                                          {side}
@@ -99,65 +99,105 @@ def show_args(command_name):
     """)
 
 def show_help():
-    help_text = """
-       ┏━━ Manager Commands - Help ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-       ┃                                                                                        ┃
-       ┃   Note: Commands accept abbreviatons or full names. Inputs are case insensitive.       ┃
-       ┃       Example: 'st' / 'status' for the 'status' command.                               ┃
-       ┃                                                                                        ┃
-       ┃   Utility commands ->                                                                  ┃
-       ┃   These commands have no abbreviations / shortcuts.                                    ┃
-       ┃                                                                                        ┃
-       ┃   1. help        :     Shows this screen                                               ┃
-       ┃   2. exit        :     Exit the manager. (Does not shutdown relay / tor)               ┃
-       ┃   3. art         :     Prints the splash ascii art.                                    ┃
-       ┃   4. clear       :     clears the terminal screen.                                     ┃
-       ┃   5. commands    :     Prints the available commands box.                              ┃
-       ┃                                                                                        ┃
-       ┃   Manager commands ->                                                                  ┃
-       ┃                                                                                        ┃
-       ┃    1. Status ---------------------------------------------------------------------     ┃
-       ┃                                                                                        ┃
-       ┃      Command     :   st (or) status                                                    ┃
-       ┃      Arguments   :   relay / tor                                                       ┃
-       ┃      Description :   Shows an updating dashboard of the chosen service (relay/tor).    ┃
-       ┃      Source      :   Data fetched from systemd systemctl.                              ┃
-       ┃      Example use :   st relay (or) status relay  /  st tor (or) status tor             ┃
-       ┃                                                                                        ┃
-       ┃    2. Repair ---------------------------------------------------------------------     ┃
-       ┃                                                                                        ┃
-       ┃      Command     :   rp (or) repair                                                    ┃
-       ┃      Arguments   :   No arguments.                                                     ┃
-       ┃      Description :   Repairs all the binaries and verifies the torrc.                  ┃
-       ┃      Source      :   Binaries from the Install server, torrc from manager binary       ┃
-       ┃      Example use :   rp / repair                                                       ┃
-       ┃                                                                                        ┃
-       ┃    3. Logs -----------------------------------------------------------------------     ┃
-       ┃                                                                                        ┃
-       ┃      Command     :   lg (or) logs                                                      ┃
-       ┃      Arguments   :   relay / tor                                                       ┃
-       ┃      Description :   Shows logs of the chosen service (tor/relay).                     ┃
-       ┃      Source      :   Tor logs - journalctl. Relay logs - File (~/relay_log.txt).       ┃
-       ┃      Example use :   lg relay (or) log relay / lg tor (or) log tor                     ┃
-       ┃                                                                                        ┃
-       ┃    4. Update ---------------------------------------------------------------------     ┃
-       ┃                                                                                        ┃
-       ┃      Command     :   up (or) update                                                    ┃
-       ┃      Arguments   :   relay / tor                                                       ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┃                                                                                        ┃
-       ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    side = f"{dim}┃{reset}"
+    help_text = f"""
+
+       {dim}┏━━{reset+cyan+bold} Pager controls{reset}{dim} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{reset}
+       {side}                                                         {side}
+       {side}   Exit pager mode       :      type 'q'                 {side}
+       {side}   search a term         :      /<search_text>           {side}
+       {side}   Move                  :      Arrow keys               {side}
+       {side}   Pager mode help       :      type 'help' and enter    {side}
+       {side}                                                         {side}
+       {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
+       
+       {dim}┏━━{reset+cyan+bold} Manager Commands - Help{reset}{dim} ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓{reset}         
+       {side}                                                                                        {side}
+       {side}   {green+dim}Note: Commands accept abbreviatons or full names. Inputs are case insensitive.{reset}       {side}
+       {side}                                                                                        {side}
+       {side}   Utility commands ->                                                                  {side}
+       {side}   {red}These commands have no abbreviations / shortcuts.{reset}                                    {side}
+       {side}                                                                                        {side}
+       {side}   {green}1. help{reset}        :     Shows this screen                                               {side}
+       {side}   {green}2. exit{reset}        :     Exit the manager. (Does not shutdown relay / tor)               {side}
+       {side}   {green}3. art{reset}         :     Prints the splash ascii art.                                    {side}
+       {side}   {green}4. clear{reset}       :     clears the terminal screen.                                     {side}
+       {side}   {green}5. commands{reset}    :     Prints the available commands box.                              {side}
+       {side}                                                                                        {side}
+       {side}   {bold+cyan}Manager commands ->{reset}                                                                  {side}
+       {side}                                                                                        {side}
+       {side}    1. Status{dim} ---------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}st (or) status{reset}                                                    {side}
+       {side}      {cyan}Arguments{reset}   :   relay / tor                                                       {side}
+       {side}      {cyan}Description{reset} :   Shows an updating dashboard of the chosen service (relay/tor).    {side}
+       {side}      {cyan}Source{reset}      :   Data fetched from systemd systemctl.                              {side}
+       {side}      {cyan}Example use{reset} :   st relay (or) status relay  /  st tor (or) status tor             {side}
+       {side}                                                                                        {side}
+       {side}    2. Repair{dim} ---------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}rp (or) repair{reset}                                                    {side}
+       {side}      {cyan}Arguments{reset}   :   No arguments.                                                     {side}
+       {side}      {cyan}Description{reset} :   Repairs all the binaries and verifies the torrc.                  {side}
+       {side}      {cyan}Source{reset}      :   Binaries from the Install server, torrc from manager binary       {side}
+       {side}      {cyan}Example use{reset} :   rp  /  repair                                                     {side}
+       {side}                                                                                        {side}
+       {side}    3. Logs{dim} -----------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}lg (or) logs{reset}                                                      {side}
+       {side}      {cyan}Arguments{reset}   :   relay / tor                                                       {side}
+       {side}      {cyan}Description{reset} :   Shows logs of the chosen service (tor/relay).                     {side}
+       {side}      {cyan}Source{reset}      :   Tor logs - journalctl. Relay logs - File (~/relay_log.txt).       {side}
+       {side}      {cyan}Example use{reset} :   lg relay (or) log relay  /  lg tor (or) log tor                   {side}
+       {side}                                                                                        {side}
+       {side}    4. Update{dim} ---------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}up (or) update{reset}                                                    {side}
+       {side}      {cyan}Arguments{reset}   :   relay / tor                                                       {side}
+       {side}      {cyan}Description{reset} :   Updates binaries of the specified service.                        {side}
+       {side}      {cyan}Source{reset}      :   Binaries fetched from the Install server.                         {side}
+       {side}      {cyan}Example use{reset} :   up relay (or) update relay  /  up tor (or) update tor             {side}
+       {side}                                                                                        {side}
+       {side}    5. Stop{dim} -----------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}sp (or) stop{reset}                                                      {side}
+       {side}      {cyan}Arguments{reset}   :   relay / tor                                                       {side}
+       {side}      {cyan}Description{reset} :   Stops the provided service from running.                          {side}
+       {side}      {cyan}Done using{reset}  :   systemctl                                                         {side}
+       {side}      {cyan}Example use{reset} :   sp relay (or) stop relay  /  sp tor (or) stop tor                 {side}
+       {side}                                                                                        {side}
+       {side}    6. Shutdown{dim} -------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}sd (or) shutdown{reset}                                                  {side}
+       {side}      {cyan}Arguments{reset}   :   No arguments                                                      {side}
+       {side}      {cyan}Description{reset} :   Shuts down tor and relay.                                         {side}
+       {side}      {cyan}Done using{reset}  :   systemctl                                                         {side}
+       {side}      {cyan}Example use{reset} :   sd  /  shutdown                                                   {side}
+       {side}                                                                                        {side}
+       {side}    7. Restart{dim} --------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}re (or) restart{reset}                                                   {side}
+       {side}      {cyan}Arguments{reset}   :   relay / tor                                                       {side}
+       {side}      {cyan}Description{reset} :   Restarts the provided daemon process.                             {side}
+       {side}      {cyan}Done using{reset}  :   systemctl                                                         {side}
+       {side}      {cyan}Example use{reset} :   re relay (or) restart relay  /  re tor (or) restart tor           {side}
+       {side}                                                                                        {side}
+       {side}    8. Uninstall{dim} ------------------------------------------------------------------{reset}     {side}
+       {side}                                                                                        {side}
+       {side}         {red}Warning : This Permanently erases Relay data and it cannot be recovered.{reset}       {side}
+       {side}                                                                                        {side}
+       {side}             {red}After Uninstalling Relay, please email projectrelayx@gmail.com{reset}             {side}
+       {side}           {red}so that we can remove your Relay's onion address from our directory.{reset}         {side}
+       {side}                                                                                        {side}
+       {side}      {cyan}Command{reset}     :   {green}un (or) uninstall{reset}                                                 {side}
+       {side}      {cyan}Arguments{reset}   :   No Arguments.                                                     {side}
+       {side}      {cyan}Description{reset} :   Uninstalls the Relay software. (Tor and Relay incl.)              {side}
+       {side}      {cyan}Done using{reset}  :   Recursive removal                                                 {side}
+       {side}      {cyan}Example use{reset} :   un  /  uninstall                                                  {side}
+       {side}                                                                                        {side}
+       {dim}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛{reset}
        """
+    
     os.environ["PAGER"] = "less -R"
     pydoc.pager(help_text)
 show_help()
